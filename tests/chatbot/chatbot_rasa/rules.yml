@@ -1,0 +1,24 @@
+#Luật hội thoại
+
+version: "3.1"
+
+rules:
+- rule: Trả lời nguồn dữ liệu
+  steps:
+  - intent: hoi_nguon_du_lieu
+  - action: utter_hoi_nguon_du_lieu
+
+- rule: Trả lời ý nghĩa biến
+  steps:
+  - intent: hoi_y_nghia_bien
+  - action: utter_hoi_y_nghia_bien
+
+- rule: Trả lời phân tích sơ bộ
+  steps:
+  - intent: hoi_phan_tich_so_bo
+  - action: utter_hoi_phan_tich_so_bo
+
+- rule: Dự báo khối lượng giao dịch
+  steps:
+  - intent: du_bao_khoi_luong
+  - action: action_du_bao_khoi_luong

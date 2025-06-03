@@ -1,0 +1,30 @@
+#Khai báo intent, entity, response
+
+
+version: "3.1"
+
+intents:
+  - hoi_nguon_du_lieu
+  - hoi_y_nghia_bien
+  - hoi_phan_tich_so_bo
+  - du_bao_khoi_luong
+
+responses:
+  utter_hoi_nguon_du_lieu:
+    - text: "Dữ liệu được lấy từ Yahoo Finance thông qua thư viện yfinance."
+
+  utter_hoi_y_nghia_bien:
+    - text: |
+        • Date: Ngày giao dịch
+        • Open: Giá mở cửa
+        • High: Giá cao nhất trong ngày
+        • Low: Giá thấp nhất trong ngày
+        • Close: Giá đóng cửa
+        • Volume: Khối lượng giao dịch
+        • RSI, MACD: Chỉ báo kỹ thuật
+
+  utter_hoi_phan_tich_so_bo:
+    - text: "Giá vàng có xu hướng tăng nhẹ, độ biến động ổn định. Trung bình giá đóng cửa khoảng X USD."
+
+actions:
+  - action_du_bao_khoi_luong

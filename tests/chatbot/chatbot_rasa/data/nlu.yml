@@ -1,0 +1,29 @@
+#Các intent và ví dụ người dùng
+
+
+version: "3.1"
+
+nlu:
+- intent: hoi_nguon_du_lieu
+  examples: |
+    - Dữ liệu được lấy từ đâu?
+    - Bạn sử dụng nguồn dữ liệu nào?
+    - Nguồn dữ liệu là gì?
+
+- intent: hoi_y_nghia_bien
+  examples: |
+    - Ý nghĩa của các cột là gì?
+    - Cột Close là gì?
+    - Mỗi cột trong dữ liệu có nghĩa gì?
+
+- intent: hoi_phan_tich_so_bo
+  examples: |
+    - Kết quả phân tích sơ bộ là gì?
+    - Cho tôi biết kết quả thống kê cơ bản?
+    - Có phân tích gì từ dữ liệu không?
+
+- intent: du_bao_khoi_luong
+  examples: |
+    - Dự báo khối lượng giao dịch ngày mai?
+    - Khối lượng giao dịch của ngày mai là bao nhiêu?
+    - Ngày mai volume bao nhiêu?
