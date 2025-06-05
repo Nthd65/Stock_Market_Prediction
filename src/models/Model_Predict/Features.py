@@ -62,6 +62,13 @@ def custom_feature_func(df: pd.DataFrame, window: int = 20) -> pd.DataFrame:
     # ——————————————
     # 1. Feature giá
     # Đảm bảo 'date' là datetime
+    df.columns = [c.lower() for c in df.columns]
+
+    # Ép kiểu các cột số về float
+    numeric_cols = ["open", "high", "low", "close", "volume"]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
     df["date"] = pd.to_datetime(df["date"])
     df["Close_Lag1"] = df["close"].shift(1)
     df["Close_Change"] = df["close"].pct_change()

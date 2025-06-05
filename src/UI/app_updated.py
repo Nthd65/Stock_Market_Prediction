@@ -6,18 +6,23 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from src.configs.path_dir import EDA_DESCRIBE_PATH, PRED_PATH, PROCESSED_PATH
+from src.configs.path_dir import EDA_DESCRIBE_PATH, PRED_PATH, RAW_DATA_PATH
 from src.services.chatbot_logic import get_chatbot_response
 
-# ----- Cấu hình App -----
-st.set_page_config(page_title="LAB 02", layout="wide")
+# --- Cấu hình session state ---
+if "analysis_ready" not in st.session_state:
+    st.session_state["analysis_ready"] = False
+
+# --- Cấu hình Streamlit ---
+st.set_page_config(page_title="LAB 01", layout="wide")
 st.title("Stock Market Prediction App")
 
-# ----- Sidebar -----
+# --- Sidebar: Cấu hình ---
 st.sidebar.header("Cấu hình phân tích")
 asset_type = st.sidebar.selectbox("Chọn loại tài sản", ["Gold"], index=0)
+
 try:
-    processed = pd.read_csv(PROCESSED_PATH)
+    processed = pd.read_csv(RAW_DATA_PATH)
     pred = pd.read_csv(PRED_PATH)
     eda = (
         pd.read_csv(EDA_DESCRIBE_PATH, index_col=0)
@@ -32,7 +37,7 @@ try:
 
     min_date = processed["date"].min()
     max_date = processed["date"].max()
-
+    # max_date = pd.to_datetime("today")  # Lấy ngày hiện tại làm ngày kết thúc
     selected_date = st.sidebar.date_input(
         "Chọn ngày kết thúc",
         value=max_date,
@@ -41,28 +46,27 @@ try:
         format="DD/MM/YYYY",
     )
 
-    run_button = st.sidebar.button("Bắt đầu phân tích")
+    if st.sidebar.button("Bắt đầu phân tích"):
+        st.session_state["analysis_ready"] = True
 
 except Exception as e:
     st.error(f"Lỗi đọc dữ liệu: {e}")
     st.stop()
 
-# ----- Khi người dùng nhấn nút -----
-if run_button:
+# --- Main Content ---
+if st.session_state["analysis_ready"]:
     st.success(
         f"Phân tích dữ liệu {asset_type} đến ngày {selected_date.strftime('%d/%m/%Y')}"
     )
 
-    # --- Chatbot ---
-    st.subheader("Chatbot Assistant")
+    # --- 1. Chatbot ---
+    st.subheader("Trợ lý AI - Chatbot")
     with st.expander("Hỏi trợ lý AI về dữ liệu", expanded=True):
         user_q = st.text_input("Bạn muốn hỏi gì?", "Nguồn dữ liệu là gì?")
         if st.button("Gửi", key="chatbot_send"):
-            st.markdown(f"**Bạn hỏi:** {user_q}")
-            response = get_chatbot_response(user_q)
-            st.info(response)
+            st.info(get_chatbot_response(user_q))
 
-    # --- Dự báo ngày mai ---
+    # --- 2. Dự báo ---
     st.subheader("Dự báo giá và khối lượng ngày mai")
     latest_row = pred[pred["date"] == pd.to_datetime(selected_date)]
     if not latest_row.empty:
@@ -71,19 +75,18 @@ if run_button:
     else:
         st.warning("Không có dữ liệu dự báo cho ngày này!")
 
-    # --- Phân tích sơ bộ ---
+    # --- 3. Phân tích sơ bộ ---
     st.subheader("Phân tích sơ bộ dữ liệu")
     if eda is not None:
         st.dataframe(eda, use_container_width=True)
     else:
         st.info("Chưa có kết quả phân tích sơ bộ.")
 
-    # --- Biểu đồ ---
+    # --- 4. Biểu đồ ---
     st.subheader("Biểu đồ giá và khối lượng")
     show_df = processed[processed["date"] <= pd.to_datetime(selected_date)]
     show_pred = pred[pred["date"] <= pd.to_datetime(selected_date)]
 
-    # Biểu đồ Actual vs Predicted Close
     fig1 = go.Figure()
     fig1.add_trace(
         go.Scatter(
@@ -106,7 +109,6 @@ if run_button:
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-    # Biểu đồ Actual vs Predicted Volume
     bar_df = show_df.copy()
     if "pred_volume" in show_pred.columns:
         bar_df = bar_df.merge(show_pred[["date", "pred_volume"]], on="date", how="left")
@@ -125,5 +127,5 @@ if run_button:
     st.plotly_chart(fig2, use_container_width=True)
 else:
     st.info(
-        "Vui lòng chọn loại tài sản, ngày kết thúc và nhấn **Phân tích dữ liệu** để bắt đầu."
+        "💡 Vui lòng chọn loại tài sản, ngày kết thúc và nhấn **Phân tích dữ liệu** để bắt đầu."
     )

@@ -1,21 +1,12 @@
 import os
+import sys
 
 import google.generativeai as genai
 import pandas as pd
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Configure Gemini API
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY not found in .env file")
-genai.configure(api_key=GEMINI_API_KEY)
-
-# Path to processed data and EDA results
-PROCESSED_PATH = "assets/processed/gold_prices_processed.csv"
-EDA_RESULT_DIR = "src/modules/eda_results"
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from src.configs.models import API_KEY, MODEL_NAME
+from src.configs.path_dir import EDA_RESULT_DIR
 
 
 def get_data_info():
@@ -60,21 +51,10 @@ def get_eda_summary():
     return summary
 
 
-def initialize_gemini_model():
-    """
-    Initializes and returns the Gemini Pro model.
-    """
-    model = genai.GenerativeModel(
-        "gemini-pro"
-    )  # Using gemini-pro as 2.0-Flash might be a typo for gemini-1.5-flash or gemini-pro.
-    return model
-
-
 def get_chatbot_response(user_query: str):
     """
     Generates a response to the user's query using the Gemini model.
     """
-    model = initialize_gemini_model()
     data_info = get_data_info()
     eda_summary = get_eda_summary()
 
@@ -91,6 +71,13 @@ Hãy trả lời các câu hỏi của người dùng bằng tiếng Việt, d�
 
 Câu hỏi của người dùng: {user_query}
 """
+    # Cấu hình Google Generative AI
+    # Kiểm tra kết nối API
+    try:
+        genai.configure(api_key=API_KEY)
+        model = genai.GenerativeModel(MODEL_NAME)
+    except Exception as e:
+        return f"Không thể kết nối tới API Gemini. Vui lòng kiểm tra API_KEY và MODEL_NAME. Lỗi: {e}"
 
     try:
         response = model.generate_content(context)
@@ -102,9 +89,6 @@ Câu hỏi của người dùng: {user_query}
 if __name__ == "__main__":
     # Example usage
     print("Chào mừng bạn đến với Chatbot phân tích giá vàng!")
-    print(
-        "Tôi có thể trả lời các câu hỏi về nguồn dữ liệu, ý nghĩa biến và phân tích sơ bộ."
-    )
     while True:
         user_input = input("\nBạn hỏi gì? (gõ 'thoat' để thoát): ")
         if user_input.lower() == "thoat":
